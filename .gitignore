@@ -1,8 +1,12 @@
 # Backend ignores
 __pycache__/
 *.py[cod]
+*.env
 instance/
-.env
+
+# Poetry files
+poetry.lock
+migrations/
 
 # Frontend ignores
 frontend/node_modules/
@@ -11,11 +15,16 @@ frontend/.env
 frontend/.cache/
 
 # Logs
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+.DS_Store
 
 # Miscellaneous
-frontend/.DS_Store
-frontend/.eslintcache
-frontend/*.log
+*.log
+coverage/
