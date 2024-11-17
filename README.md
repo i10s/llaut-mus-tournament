@@ -1,46 +1,80 @@
+
 # Llaut Mus Tournament
 
-![Build Status](https://github.com/username/llaut-mus-tournament/actions/workflows/main.yml/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/username/llaut-mus-tournament/badge.svg?branch=main)](https://coveralls.io/github/username/llaut-mus-tournament?branch=main)
-![Dependency Status](https://img.shields.io/librariesio/github/username/llaut-mus-tournament)
+![Build Status](https://github.com/i10s/llaut-mus-tournament/actions/workflows/main.yml/badge.svg)
+[![Coverage Status](https://codecov.io/github/i10s/llaut-mus-tournament/main/graph/badge.svg)](https://codecov.io/github/i10s/llaut-mus-tournament)
+![Dependencies](https://img.shields.io/librariesio/github/i10s/llaut-mus-tournament)
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
-![License](https://img.shields.io/github/license/username/llaut-mus-tournament)
+![License](https://img.shields.io/github/license/i10s/llaut-mus-tournament)
 
-Llaut Mus Tournament is a Python-based web application designed to manage and visualize mus card game tournaments. 
-The app provides features for user management, random pair generation, bracket creation, leaderboard tracking, 
-and winner predictions.
+Llaut Mus Tournament is a Python-based web application designed to manage and visualize mus card game tournaments. The app provides features for user management, random pair generation, bracket creation, leaderboard tracking, and predictions.
+
+---
 
 ## Features
-- Register and manage users.
-- Generate and manage pairs randomly.
-- Create a tournament bracket with elimination rounds.
-- Track player and pair statistics.
-- Predict winners based on performance.
 
-## Requirements
-- Python 3.9+
-- Poetry
+- **User Management**: Register, update, and delete users.
+- **Pair Management**: Generate random pairs, update, and delete pairs.
+- **Tournament Bracket**: Create and visualize brackets, and register match results.
+- **Leaderboards**: Display leaderboards for users and pairs based on performance.
+- **Statistics**: View detailed stats for players and pairs.
+- **Frontend Integration**: Responsive React-based UI for interaction with the backend.
 
-## Installation
-1. Clone the repository:
+---
+
+## Frontend Setup
+
+The frontend is implemented using React and styled with TailwindCSS. Here's how to set it up:
+
+1. Navigate to the `frontend/` directory:
    ```bash
-   git clone https://github.com/i10s/llaut-mus-tournament.git
-   cd llaut-mus-tournament
+   cd frontend
    ```
-2. Install dependencies using Poetry:
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Run the frontend application:
+   ```bash
+   npm start
+   ```
+
+---
+
+## Backend Setup
+
+The backend is built with FastAPI. To run the backend:
+
+1. Install dependencies:
    ```bash
    poetry install
    ```
-3. Run the application:
+
+2. Start the backend server:
    ```bash
    poetry run uvicorn app.main:app --reload
    ```
 
+---
+
 ## Testing
-Run tests using pytest:
+
+Run all tests for the backend using pytest:
 ```bash
 poetry run pytest
 ```
 
+---
+
+## Deployment
+
+- **Frontend**: Can be deployed to platforms like Netlify or Vercel.
+- **Backend**: Deployed to Fly.io with `fly.toml` configuration.
+
+---
+
 ## License
+
 This project is licensed under the MIT License.

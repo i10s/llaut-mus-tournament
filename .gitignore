@@ -1,11 +1,21 @@
-# Ignore Python cache files
+# Backend ignores
 __pycache__/
-*.pyc
-*.pyo
-*.log
+*.py[cod]
+instance/
+.env
 
-# Ignore virtual environments
-venv/
+# Frontend ignores
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/.cache/
 
-# Ignore system files
-.DS_Store
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Miscellaneous
+frontend/.DS_Store
+frontend/.eslintcache
+frontend/*.log

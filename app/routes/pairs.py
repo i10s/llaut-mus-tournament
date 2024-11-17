@@ -81,6 +81,7 @@ def delete_pair(index: int):
     Raises:
         HTTPException: If the index is invalid.
     """
+    global pairs  # Ensure global reference to the pairs list
     try:
         pair = pairs.pop(index)  # Remove the pair at the specified index
     except IndexError:

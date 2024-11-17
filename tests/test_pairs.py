@@ -6,7 +6,6 @@ client = TestClient(app)
 
 def setup_function():
     # Clear users and pairs before each test
-    users.clear()
     pairs.clear()
 
 def test_generate_random_pairs():
@@ -45,11 +44,14 @@ def test_delete_pair():
     """
     # Add a specific pair manually
     pairs.append(("Player1", "Player2"))
+    print(f"Pairs before deletion: {pairs}")
 
     # Delete the pair
     response = client.delete("/pairs/0/")
+    print(f"Pairs after deletion: {pairs}")
+
     assert response.status_code == 200
     assert response.json() == {"message": "Pair ('Player1', 'Player2') deleted successfully."}
 
-    # Verify the pair is removed
+    # Confirm the pair has been removed
     assert len(pairs) == 0
