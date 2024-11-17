@@ -1,0 +1,26 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background: #333;
+    color: #fff;
+    padding: 10px 20px;
+}
+header ul {
+    list-style: none;
+    padding: 0;
+}
+header ul li {
+    display: inline;
+    margin-right: 10px;
+}
+header ul li a {
+    color: white;
+    text-decoration: none;
+}
+main {
+    padding: 20px;
+}
