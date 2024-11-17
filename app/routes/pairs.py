@@ -1,90 +1,98 @@
-from fastapi import APIRouter, HTTPException
-from app.database import users, pairs  # Import shared state
-from app.models import Pair  # Import the Pair model
+from fastapi import APIRouter, HTTPException, Request, Form
+from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
+from app.database import pairs, pair_stats, registered_users  # Import shared data
 import random
 
-# Initialize the router for pair management
+# Initialize router and templates
 router = APIRouter()
-
-@router.post("/generate-random/")
-def generate_random_pairs():
-    """
-    Generate random pairs from the list of users.
-
-    Returns:
-        dict: List of randomly generated pairs.
-
-    Raises:
-        HTTPException: If there are not enough users to generate pairs.
-    """
-    if len(users) < 2:
-        raise HTTPException(status_code=400, detail="Not enough users to generate pairs")
-
-    # Shuffle the users and create pairs
-    random.shuffle(users)
-    global pairs
-    pairs.clear()  # Reset existing pairs
-    pairs = [(users[i], users[i + 1]) for i in range(0, len(users) - 1, 2)]
-
-    # Handle odd number of users
-    if len(users) % 2 != 0:
-        pairs.append((users[-1], None))  # Pair the last user with None
-
-    return {"pairs": pairs}
+templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/")
-def list_pairs():
+def list_pairs(request: Request):
     """
-    Retrieve the list of all pairs.
-
-    Returns:
-        dict: List of pairs.
-    """
-    return {"pairs": pairs}
-
-@router.put("/{pair_index}/")
-def update_pair(pair_index: int, pair: Pair):
-    """
-    Update an existing pair.
+    Render a page listing all pairs with their stats.
 
     Args:
-        pair_index (int): Index of the pair to update.
-        pair (Pair): New pair information.
+        request (Request): The request object for rendering the template.
 
     Returns:
-        dict: Confirmation message if the pair is updated successfully.
+        TemplateResponse: Rendered template with pair and stats information.
+    """
+    # Prepare data to handle None values in pairs
+    processed_pairs = []
+    for pair in pairs:
+        pair_key = "-".join([p for p in pair if p is not None])
+        stats = pair_stats.get(pair_key, {"games_played": 0, "games_won": 0, "games_lost": 0})
+        processed_pairs.append({"pair": pair, "stats": stats})
+
+    return templates.TemplateResponse(
+        "pairs.html", {"request": request, "processed_pairs": processed_pairs}
+    )
+
+@router.post("/generate/")
+def generate_pairs():
+    """
+    Generate random pairs from registered users.
+
+    Returns:
+        dict: Information about generated pairs and their stats.
 
     Raises:
-        HTTPException: If the pair index is invalid or users in the new pair are invalid.
+        HTTPException: If there are not enough registered users to generate pairs.
     """
-    if pair_index < 0 or pair_index >= len(pairs):
-        raise HTTPException(status_code=404, detail="Pair index out of range")
+    if len(registered_users) < 2:
+        raise HTTPException(status_code=400, detail="Not enough users to generate pairs.")
 
-    if pair.player1 not in users or (pair.player2 is not None and pair.player2 not in users):
-        raise HTTPException(status_code=400, detail="Both players must be registered users")
+    # Shuffle the users and create pairs
+    shuffled_users = registered_users[:]
+    random.shuffle(shuffled_users)
+    global pairs, pair_stats
+    pairs.clear()
+    pair_stats.clear()
 
-    # Update the pair
-    pairs[pair_index] = (pair.player1, pair.player2)
-    return {"message": f"Pair {pair_index} updated to ({pair.player1}, {pair.player2})."}
+    pairs = [
+        (shuffled_users[i], shuffled_users[i + 1] if i + 1 < len(shuffled_users) else None)
+        for i in range(0, len(shuffled_users), 2)
+    ]
 
-@router.delete("/{index}/")
-def delete_pair(index: int):
+    # Initialize pair stats, handling None in pairs
+    pair_stats.update({
+        "-".join([p for p in pair if p is not None]): {
+            "games_played": 0,
+            "games_won": 0,
+            "games_lost": 0
+        }
+        for pair in pairs
+    })
+
+    return {"pairs": pairs, "pair_stats": pair_stats}
+
+@router.post("/add-match/{pair_name}/")
+def add_match(pair_name: str, result: str = Form(...)):
     """
-    Delete a pair by its index.
+    Update the stats for a specific pair based on match results.
 
     Args:
-        index (int): The index of the pair to delete.
+        pair_name (str): The unique identifier for the pair.
+        result (str): The result of the match, either "win" or "loss".
 
     Returns:
-        dict: Confirmation message after deleting the pair.
+        RedirectResponse: Redirects to the pairs list page.
 
     Raises:
-        HTTPException: If the index is invalid.
+        HTTPException: If the pair is not found or the result is invalid.
     """
-    global pairs  # Ensure global reference to the pairs list
-    try:
-        pair = pairs.pop(index)  # Remove the pair at the specified index
-    except IndexError:
-        raise HTTPException(status_code=404, detail="Invalid pair index")
+    if pair_name not in pair_stats:
+        raise HTTPException(status_code=404, detail="Pair not found.")
 
-    return {"message": f"Pair {pair} deleted successfully."}
+    if result not in ["win", "loss"]:
+        raise HTTPException(status_code=400, detail="Invalid result. Must be 'win' or 'loss'.")
+
+    pair_stats[pair_name]["games_played"] += 1
+    if result == "win":
+        pair_stats[pair_name]["games_won"] += 1
+    elif result == "loss":
+        pair_stats[pair_name]["games_lost"] += 1
+
+    return RedirectResponse("/pairs", status_code=303)

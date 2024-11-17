@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Pairs and Stats{% endblock %}
+
+{% block content %}
+<h2>Pairs and Stats</h2>
+
+<ul>
+    {% for item in processed_pairs %}
+    <li>
+        {{ item.pair[0] }} - {{ item.pair[1] if item.pair[1] else "None" }}
+        <ul>
+            <li>Games Played: {{ item.stats.games_played }}</li>
+            <li>Games Won: {{ item.stats.games_won }}</li>
+            <li>Games Lost: {{ item.stats.games_lost }}</li>
+        </ul>
+    </li>
+    {% endfor %}
+</ul>
+
+<form action="/pairs/generate/" method="post">
+    <button type="submit">Generate New Pairs</button>
+</form>
+{% endblock %}

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from app.database import users  # Import the shared users list
+from app.database import registered_users  # Import the shared registered_users list
 from app.models import User  # Import the User model
 
 # Initialize the router for user management
@@ -24,11 +24,10 @@ def register_user(user: User):
     Raises:
         HTTPException: If the username already exists.
     """
-    if user.username in users:
+    if user.username in registered_users:
         raise HTTPException(status_code=400, detail="Username already exists")
-    users.append(user.username)
+    registered_users.append(user.username)
     return {"message": f"User '{user.username}' registered successfully."}
-
 
 @router.get("/")
 def list_users():
@@ -38,7 +37,7 @@ def list_users():
     Returns:
         dict: List of usernames.
     """
-    return {"users": users}
+    return {"users": registered_users}
 
 @router.put("/{username}/")
 def update_user(username: str, request: UpdateUsernameRequest):
@@ -55,13 +54,13 @@ def update_user(username: str, request: UpdateUsernameRequest):
     Raises:
         HTTPException: If the current username does not exist or the new username already exists.
     """
-    if username not in users:
+    if username not in registered_users:
         raise HTTPException(status_code=404, detail="User not found")
-    if request.new_username in users:
+    if request.new_username in registered_users:
         raise HTTPException(status_code=400, detail="New username already exists")
 
     # Update the username
-    users[users.index(username)] = request.new_username
+    registered_users[registered_users.index(username)] = request.new_username
     return {"message": f"User '{username}' updated to '{request.new_username}' successfully."}
 
 @router.delete("/{username}/")
@@ -78,9 +77,9 @@ def delete_user(username: str):
     Raises:
         HTTPException: If the username does not exist.
     """
-    if username not in users:
+    if username not in registered_users:
         raise HTTPException(status_code=404, detail="User not found")
 
     # Remove the user
-    users.remove(username)
+    registered_users.remove(username)
     return {"message": f"User '{username}' deleted successfully."}

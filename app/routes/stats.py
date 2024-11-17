@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from app.database import users, pairs  # Import shared state
+from app.database import registered_users, pairs  # Import shared state
 
 # Initialize the router for stats and leaderboard
 router = APIRouter()
 
 # In-memory storage for stats
-user_stats = {user: {"games_played": 0, "games_won": 0, "games_lost": 0} for user in users}
+user_stats = {user: {"games_played": 0, "games_won": 0, "games_lost": 0} for user in registered_users}
 pair_stats = {"-".join(pair): {"games_played": 0, "games_won": 0, "games_lost": 0} for pair in pairs}
 
 # Pydantic models for validation

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Tournament Bracket{% endblock %}
+
+{% block content %}
+<h2>Tournament Bracket</h2>
+
+{% if bracket_with_index %}
+    {% for round_index, round_matches in bracket_with_index %}
+    <h3>Round {{ round_index + 1 }}</h3>
+    <ul>
+        {% for match in round_matches %}
+        <li>
+            {{ match.pair1[0] }} - {{ match.pair1[1] if match.pair1[1] else "None" }}
+            vs
+            {{ match.pair2[0] }} - {{ match.pair2[1] if match.pair2[1] else "None" }}
+            {% if not match.winner %}
+            <form action="/tournament/register-winner/" method="post" style="display: inline;">
+                <input type="hidden" name="round_index" value="{{ round_index }}">
+                <input type="hidden" name="match_index" value="{{ loop.index0 }}">
+                <select name="winner" required>
+                    <option value="{{ '-'.join(match.pair1) }}">{{ match.pair1[0] }} - {{ match.pair1[1] }}</option>
+                    <option value="{{ '-'.join(match.pair2) }}">{{ match.pair2[0] }} - {{ match.pair2[1] }}</option>
+                </select>
+                <button type="submit">Set Winner</button>
+            </form>
+            {% else %}
+            Winner: {{ match.winner }}
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+{% else %}
+<p>No tournament bracket generated yet. <a href="/tournament/generate/">Generate Bracket</a></p>
+{% endif %}
+{% endblock %}

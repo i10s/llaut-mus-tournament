@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard - Llaut Mus Tournament{% endblock %}
+
+{% block content %}
+<h2>Leaderboard</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Games Played</th>
+            <th>Games Won</th>
+            <th>Games Lost</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for username, stats in leaderboard %}
+        <tr>
+            <td>{{ username }}</td>
+            <td>{{ stats.games_played }}</td>
+            <td>{{ stats.games_won }}</td>
+            <td>{{ stats.games_lost }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
