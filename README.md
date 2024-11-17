@@ -1,5 +1,11 @@
 # Llaut Mus Tournament
 
+![Build Status](https://github.com/username/llaut-mus-tournament/actions/workflows/main.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/username/llaut-mus-tournament/badge.svg?branch=main)](https://coveralls.io/github/username/llaut-mus-tournament?branch=main)
+![Dependency Status](https://img.shields.io/librariesio/github/username/llaut-mus-tournament)
+![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
+![License](https://img.shields.io/github/license/username/llaut-mus-tournament)
+
 Llaut Mus Tournament is a Python-based web application designed to manage and visualize mus card game tournaments. 
 The app provides features for user management, random pair generation, bracket creation, leaderboard tracking, 
 and winner predictions.

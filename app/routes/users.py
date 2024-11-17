@@ -1,10 +1,14 @@
-# User management module placeholder
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from app.database import users  # Import the shared users list
 from app.models import User  # Import the User model
 
 # Initialize the router for user management
 router = APIRouter()
+
+# Define the request model for updating a username
+class UpdateUsernameRequest(BaseModel):
+    new_username: str
 
 @router.post("/register/")
 def register_user(user: User):
@@ -25,6 +29,7 @@ def register_user(user: User):
     users.append(user.username)
     return {"message": f"User '{user.username}' registered successfully."}
 
+
 @router.get("/")
 def list_users():
     """
@@ -36,13 +41,13 @@ def list_users():
     return {"users": users}
 
 @router.put("/{username}/")
-def update_user(username: str, new_username: str):
+def update_user(username: str, request: UpdateUsernameRequest):
     """
     Update an existing user's username.
 
     Args:
         username (str): The current username of the user to be updated.
-        new_username (str): The new username to replace the current one.
+        request (UpdateUsernameRequest): A Pydantic model containing the new username.
 
     Returns:
         dict: Confirmation message if the username is successfully updated.
@@ -52,12 +57,12 @@ def update_user(username: str, new_username: str):
     """
     if username not in users:
         raise HTTPException(status_code=404, detail="User not found")
-    if new_username in users:
+    if request.new_username in users:
         raise HTTPException(status_code=400, detail="New username already exists")
 
     # Update the username
-    users[users.index(username)] = new_username
-    return {"message": f"User '{username}' updated to '{new_username}' successfully."}
+    users[users.index(username)] = request.new_username
+    return {"message": f"User '{username}' updated to '{request.new_username}' successfully."}
 
 @router.delete("/{username}/")
 def delete_user(username: str):

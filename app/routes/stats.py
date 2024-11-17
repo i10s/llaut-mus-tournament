@@ -1,5 +1,5 @@
-# Statistics and leaderboard module placeholder
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from app.database import users, pairs  # Import shared state
 
 # Initialize the router for stats and leaderboard
@@ -8,6 +8,19 @@ router = APIRouter()
 # In-memory storage for stats
 user_stats = {user: {"games_played": 0, "games_won": 0, "games_lost": 0} for user in users}
 pair_stats = {"-".join(pair): {"games_played": 0, "games_won": 0, "games_lost": 0} for pair in pairs}
+
+# Pydantic models for validation
+class UpdateUserStatsRequest(BaseModel):
+    username: str
+    games_played: int
+    games_won: int
+    games_lost: int
+
+class UpdatePairStatsRequest(BaseModel):
+    pair_name: str
+    games_played: int
+    games_won: int
+    games_lost: int
 
 @router.get("/leaderboard/")
 def get_leaderboard():
@@ -33,15 +46,12 @@ def get_leaderboard():
     }
 
 @router.post("/update-user-stats/")
-def update_user_stats(username: str, games_played: int, games_won: int, games_lost: int):
+def update_user_stats(request: UpdateUserStatsRequest):
     """
     Update stats for a specific user.
 
     Args:
-        username (str): The username of the player.
-        games_played (int): The number of games played.
-        games_won (int): The number of games won.
-        games_lost (int): The number of games lost.
+        request (UpdateUserStatsRequest): A Pydantic model containing the stats update data.
 
     Returns:
         dict: Confirmation message after updating stats.
@@ -49,24 +59,22 @@ def update_user_stats(username: str, games_played: int, games_won: int, games_lo
     Raises:
         HTTPException: If the user is not found.
     """
-    if username not in user_stats:
+    if request.username not in user_stats:
         raise HTTPException(status_code=404, detail="User not found")
 
-    user_stats[username]["games_played"] += games_played
-    user_stats[username]["games_won"] += games_won
-    user_stats[username]["games_lost"] += games_lost
-    return {"message": f"Stats updated for user '{username}'."}
+    stats = user_stats[request.username]
+    stats["games_played"] += request.games_played
+    stats["games_won"] += request.games_won
+    stats["games_lost"] += request.games_lost
+    return {"message": f"Stats updated for user '{request.username}'."}
 
 @router.post("/update-pair-stats/")
-def update_pair_stats(pair_name: str, games_played: int, games_won: int, games_lost: int):
+def update_pair_stats(request: UpdatePairStatsRequest):
     """
     Update stats for a specific pair.
 
     Args:
-        pair_name (str): The pair name (e.g., "Player1-Player2").
-        games_played (int): The number of games played.
-        games_won (int): The number of games won.
-        games_lost (int): The number of games lost.
+        request (UpdatePairStatsRequest): A Pydantic model containing the stats update data.
 
     Returns:
         dict: Confirmation message after updating stats.
@@ -74,10 +82,11 @@ def update_pair_stats(pair_name: str, games_played: int, games_won: int, games_l
     Raises:
         HTTPException: If the pair is not found.
     """
-    if pair_name not in pair_stats:
+    if request.pair_name not in pair_stats:
         raise HTTPException(status_code=404, detail="Pair not found")
 
-    pair_stats[pair_name]["games_played"] += games_played
-    pair_stats[pair_name]["games_won"] += games_won
-    pair_stats[pair_name]["games_lost"] += games_lost
-    return {"message": f"Stats updated for pair '{pair_name}'."}
+    stats = pair_stats[request.pair_name]
+    stats["games_played"] += request.games_played
+    stats["games_won"] += request.games_won
+    stats["games_lost"] += request.games_lost
+    return {"message": f"Stats updated for pair '{request.pair_name}'."}

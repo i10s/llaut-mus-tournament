@@ -1,9 +1,14 @@
-# Tournament logic module placeholder
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from app.database import pairs, tournament_bracket  # Import shared state
 
 # Initialize the router for tournament management
 router = APIRouter()
+
+class RegisterMatchResultRequest(BaseModel):
+    round_index: int
+    match_index: int
+    winner: str
 
 @router.post("/create-bracket/")
 def create_tournament_bracket():
@@ -24,8 +29,9 @@ def create_tournament_bracket():
     import random
     random.shuffle(pairs)  # Shuffle pairs to randomize matchups
 
+    # Clear the global tournament bracket
     global tournament_bracket
-    tournament_bracket = []
+    tournament_bracket.clear()
 
     # Create the initial round of matches
     current_round = [{"pair1": pairs[i], "pair2": pairs[i + 1], "winner": None}
@@ -53,14 +59,12 @@ def get_tournament_bracket():
     return {"tournament_bracket": tournament_bracket}
 
 @router.post("/register-match-result/")
-def register_match_result(round_index: int, match_index: int, winner: str):
+def register_match_result(request: RegisterMatchResultRequest):
     """
     Register the result of a match in the tournament.
 
     Args:
-        round_index (int): The index of the round where the match took place.
-        match_index (int): The index of the match within the round.
-        winner (str): The pair identifier (e.g., "Player1-Player2") of the winning pair.
+        request (RegisterMatchResultRequest): A Pydantic model containing the match details.
 
     Returns:
         dict: Updated tournament bracket after registering the result.
@@ -68,6 +72,10 @@ def register_match_result(round_index: int, match_index: int, winner: str):
     Raises:
         HTTPException: If the round or match index is invalid, or if the winner is invalid.
     """
+    round_index = request.round_index
+    match_index = request.match_index
+    winner = request.winner
+
     try:
         match = tournament_bracket[round_index][match_index]
     except IndexError:
@@ -76,8 +84,9 @@ def register_match_result(round_index: int, match_index: int, winner: str):
     if match["winner"] is not None:
         raise HTTPException(status_code=400, detail="Match already has a winner")
 
-    if winner not in ["-".join(match["pair1"]), "-".join(match["pair2"])]:
-        raise HTTPException(status_code=400, detail="Winner must be one of the competing pairs")
+    valid_winners = ["-".join(match["pair1"]), "-".join(match["pair2"])]
+    if winner not in valid_winners:
+        raise HTTPException(status_code=400, detail=f"Winner must be one of the competing pairs: {valid_winners}")
 
     # Update the winner
     match["winner"] = winner
@@ -91,4 +100,4 @@ def register_match_result(round_index: int, match_index: int, winner: str):
         elif next_match["pair2"] is None:
             next_match["pair2"] = winner.split("-")
 
-    return {"tournament_bracket": tournament_bracket}
+    return {"message": "Match result registered successfully", "tournament_bracket": tournament_bracket}

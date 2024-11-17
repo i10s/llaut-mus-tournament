@@ -1,4 +1,3 @@
-# Pair management module placeholder
 from fastapi import APIRouter, HTTPException
 from app.database import users, pairs  # Import shared state
 from app.models import Pair  # Import the Pair model
@@ -24,6 +23,7 @@ def generate_random_pairs():
     # Shuffle the users and create pairs
     random.shuffle(users)
     global pairs
+    pairs.clear()  # Reset existing pairs
     pairs = [(users[i], users[i + 1]) for i in range(0, len(users) - 1, 2)]
 
     # Handle odd number of users
@@ -60,30 +60,30 @@ def update_pair(pair_index: int, pair: Pair):
     if pair_index < 0 or pair_index >= len(pairs):
         raise HTTPException(status_code=404, detail="Pair index out of range")
 
-    if pair.player1 not in users or pair.player2 not in users:
+    if pair.player1 not in users or (pair.player2 is not None and pair.player2 not in users):
         raise HTTPException(status_code=400, detail="Both players must be registered users")
 
     # Update the pair
     pairs[pair_index] = (pair.player1, pair.player2)
     return {"message": f"Pair {pair_index} updated to ({pair.player1}, {pair.player2})."}
 
-@router.delete("/{pair_index}/")
-def delete_pair(pair_index: int):
+@router.delete("/{index}/")
+def delete_pair(index: int):
     """
-    Delete an existing pair by index.
+    Delete a pair by its index.
 
     Args:
-        pair_index (int): Index of the pair to delete.
+        index (int): The index of the pair to delete.
 
     Returns:
-        dict: Confirmation message if the pair is successfully deleted.
+        dict: Confirmation message after deleting the pair.
 
     Raises:
-        HTTPException: If the pair index is invalid.
+        HTTPException: If the index is invalid.
     """
-    if pair_index < 0 or pair_index >= len(pairs):
-        raise HTTPException(status_code=404, detail="Pair index out of range")
+    try:
+        pair = pairs.pop(index)  # Remove the pair at the specified index
+    except IndexError:
+        raise HTTPException(status_code=404, detail="Invalid pair index")
 
-    # Remove the pair
-    removed_pair = pairs.pop(pair_index)
-    return {"message": f"Pair {removed_pair} deleted successfully."}
+    return {"message": f"Pair {pair} deleted successfully."}
