@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "llaut-mus-tournament"
+version = "0.1.0"
+description = "A Python-based web application for managing and visualizing mus card game tournaments."
+authors = ["Your Name <youremail@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.95.1"
+uvicorn = "^0.22.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.4.0"
+httpx = "^0.24.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
